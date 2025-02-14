@@ -76,6 +76,7 @@ The API will start at `http://localhost:8080`.
 | `/api/accounts/{accountId}/deposit` | POST   | Deposit funds                  | `{"amount": 100.50}`       |
 | `/api/accounts/{accountId}/withdraw` | POST   | Withdraw funds                | `{"amount": 50.25}`        |
 | `/api/accounts/{accountId}/balance` | GET    | Get account balance           | -                          |
+| `/api/accounts/{limit}/{offset}` | GET    | Get all user accounts           | -                          |
 
 ### Transactions
 | Endpoint                    | Method | Description                  | Example Request Body                   |
