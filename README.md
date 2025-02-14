@@ -80,7 +80,7 @@ The API will start at `http://localhost:8080`.
 | Endpoint                    | Method | Description                  | Example Request Body                   |
 |-----------------------------|--------|------------------------------|----------------------------------------|
 | `/api/transactions/transfer`            | POST   | Transfer funds between users | `{"fromAccountId":1, "toAccountId":2, "amount":30}` |
-| `/api/transactions/{accountId}/deposit` | POST   | Deposit funds                  | `{"amount": 100.50,"currency":"USD","toAccountId":2,}`       |
+| `/api/transactions/deposit/notice` | POST   | Deposit funds                  | `{"amount": 100.50,"currency":"USD","toAccountId":2,}`       |
 | `/api/transactions/{accountId}/withdraw` | POST   | Withdraw funds                | `{"amount": 50.25,"currency":"USD"}`        |
 | `/api/transactions/history` | GET    | View transaction history     | -                                      |
 
