@@ -66,7 +66,7 @@ The API will start at `http://localhost:8080`.
 ### Authentication
 | Endpoint       | Method | Description               | Example Request Body              |
 |----------------|--------|---------------------------|------------------------------------|
-| `/api/auth/register` | POST   | Register a new user        | `{"username":"user", "password":"pass"}` |
+| `/api/auth/register` | POST   | Register a new user        | `{"username":"user", "password":"pass", "email":"pass"}` |
 | `/api/auth/login`    | POST   | Log in and get JWT token   | `{"username":"user", "password":"pass"}` |
 
 ### Account Management
