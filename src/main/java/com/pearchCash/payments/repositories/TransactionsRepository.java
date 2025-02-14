@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TransactionsRepository extends JpaRepository<Transaction, Long> {
-    Page<Transaction> findByFromWallet_UserOrToWallet_User(User user1, User user2, Pageable pageable);
+    Page<Transaction> findByFromAccount_UserOrToAccount_User(User user1, User user2, Pageable pageable);
 }

@@ -10,10 +10,12 @@ import com.pearchCash.payments.repositories.AccountRepository;
 import com.pearchCash.payments.repositories.TransactionsRepository;
 import com.pearchCash.payments.repositories.UserRepository;
 import com.pearchCash.payments.services.PaymentsService;
+import com.pearchCash.payments.utils.OffsetBasedPageRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
@@ -33,24 +35,6 @@ public class TransactionsService {
     private final TransactionsRepository transactionRepository;
 
 
-    @Transactional
-    public Account createAccount(User user, Currency currency) {
-        // Check if account already exists for this user/currency
-        if (accountRepository.existsByUserAndCurrency(user, currency)) {
-            throw new AccountAlreadyExistsException("Account already exists for currency: " + currency);
-        }
-
-        // Create new account with zero balance
-        Account newAccount = new Account();
-        newAccount.setUser(user);
-        newAccount.setCurrency(currency);
-        newAccount.setBalance(BigDecimal.ZERO);
-
-        // Save the account
-        Account savedAccount = accountRepository.save(newAccount);
-
-        return savedAccount;
-    }
 
 
     @Retryable(
@@ -178,5 +162,7 @@ public class TransactionsService {
         transactionRepository.save(transaction);
     }
 
-    public Pageable<Transaction> listTransactions(S)
+    public Page<Transaction> listTransactions(User user,Integer limit, Integer offset){
+        return transactionRepository.findByFromAccount_UserOrToAccount_User(user,user, new OffsetBasedPageRequest(limit,offset));
+    }
 }

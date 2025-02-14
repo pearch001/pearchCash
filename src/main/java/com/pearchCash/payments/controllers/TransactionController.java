@@ -1,7 +1,8 @@
 package com.pearchCash.payments.controllers;
 
 import com.pearchCash.payments.dtos.requests.CreateAccountRequest;
-import com.pearchCash.payments.services.implementation.AccountService;
+import com.pearchCash.payments.dtos.requests.DepositRequest;
+import com.pearchCash.payments.services.implementation.TransactionsService;
 import com.pearchCash.payments.utils.GenericData;
 import com.pearchCash.payments.utils.Response;
 import lombok.RequiredArgsConstructor;
@@ -15,23 +16,29 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
-    private final AccountService accountService;
+    private final TransactionsService transactionsService;
 
     @PostMapping("/transfer")
     public ResponseEntity<Response> createAccount(@RequestBody CreateAccountRequest request) {
-        return new ResponseEntity<>(new Response("00", "Success",new GenericData<>(accountService.createAccount(getUserNameFromContext(),request.getCurrency()))), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new Response("00", "Success",new GenericData<>(transactionsService.createAccount(getUserNameFromContext(),request.getCurrency()))), HttpStatus.BAD_REQUEST);
 
     }
 
     @GetMapping("/{limit}/{offset}")
     public ResponseEntity<Response> getAllUserAccounts(@PathVariable("limit") Integer limit,@PathVariable("offset") Integer offset) {
-        return new ResponseEntity<>(new Response("00", "Success",new GenericData<>(accountService.getUserAccount(getUserNameFromContext(),limit,offset))), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new Response("00", "Success",new GenericData<>(transactionsService.getUserAccount(getUserNameFromContext(),limit,offset))), HttpStatus.BAD_REQUEST);
 
     }
 
     @PostMapping("/{accountId}/balance")
     public ResponseEntity<Response> getBalance( @PathVariable("accountId") Long accountId) {
-        return new ResponseEntity<>(new Response("00", "Success",new GenericData<>(accountService.getAccountBalance(getUserNameFromContext(),accountId))), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new Response("00", "Success",new GenericData<>(transactionsService.getAccountBalance(getUserNameFromContext(),accountId))), HttpStatus.BAD_REQUEST);
+
+    }
+
+    @PostMapping("/deposit/notice")
+    public ResponseEntity<Response> getBalance(@RequestBody DepositRequest request) {
+        return new ResponseEntity<>(new Response("00", "Success",new GenericData<>(transactionsService.deposit(request.getToAccountId(), request.getCurrency(),request.getAmount());)), HttpStatus.BAD_REQUEST);
 
     }
 
