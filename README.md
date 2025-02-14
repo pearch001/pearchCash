@@ -16,7 +16,7 @@ A RESTful API for managing multicurrency wallets, built with **Spring Boot**, **
 
 ## Technologies
 - **Java 17**
-- **Spring Boot 3.4.2**
+- **Spring Boot 3.3.2**
 - **Spring Security** (JWT Authentication)
 - **PostgreSQL** (Production) / **H2** (Testing)
 - **JPA/Hibernate**
@@ -73,15 +73,15 @@ The API will start at `http://localhost:8080`.
 | Endpoint                          | Method | Description                     | Example Request Body       |
 |-----------------------------------|--------|---------------------------------|----------------------------|
 | `/api/accounts`                   | POST   | Create a new account (currency) | `{"currency":"USD"}`       |
-| `/api/accounts/{accountId}/deposit` | POST   | Deposit funds                  | `{"amount": 100.50}`       |
-| `/api/accounts/{accountId}/withdraw` | POST   | Withdraw funds                | `{"amount": 50.25}`        |
 | `/api/accounts/{accountId}/balance` | GET    | Get account balance           | -                          |
 | `/api/accounts/{limit}/{offset}` | GET    | Get all user accounts           | -                          |
 
 ### Transactions
 | Endpoint                    | Method | Description                  | Example Request Body                   |
 |-----------------------------|--------|------------------------------|----------------------------------------|
-| `/api/transfers`            | POST   | Transfer funds between users | `{"fromAccountId":1, "toAccountId":2, "amount":30}` |
+| `/api/transactions/transfer`            | POST   | Transfer funds between users | `{"fromAccountId":1, "toAccountId":2, "amount":30}` |
+| `/api/transactions/{accountId}/deposit` | POST   | Deposit funds                  | `{"amount": 100.50}`       |
+| `/api/transactions/{accountId}/withdraw` | POST   | Withdraw funds                | `{"amount": 50.25}`        |
 | `/api/transactions/history` | GET    | View transaction history     | -                                      |
 
 ---
