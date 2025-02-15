@@ -33,4 +33,13 @@ public class Account {
         this.currency = testCurrency;
         this.balance = bigDecimal;
     }
+
+
+
+    public Account(long l, User user, Currency currency, BigDecimal zero) {
+        this.id = l;
+        this.user = user;
+        this.currency = currency;
+        this.balance = zero;
+    }
 }

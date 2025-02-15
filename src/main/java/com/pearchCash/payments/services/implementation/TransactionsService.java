@@ -1,6 +1,7 @@
 package com.pearchCash.payments.services.implementation;
 
 import com.pearchCash.payments.enums.Currency;
+import com.pearchCash.payments.enums.Status;
 import com.pearchCash.payments.enums.TransactionType;
 import com.pearchCash.payments.exceptions.*;
 import com.pearchCash.payments.model.Account;
@@ -11,6 +12,7 @@ import com.pearchCash.payments.repositories.TransactionsRepository;
 import com.pearchCash.payments.repositories.UserRepository;
 import com.pearchCash.payments.services.PaymentsService;
 import com.pearchCash.payments.utils.OffsetBasedPageRequest;
+import com.pearchCash.payments.utils.Response;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -21,6 +23,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -43,7 +46,7 @@ public class TransactionsService {
             backoff = @Backoff(delay = 100, multiplier = 2)
     )
     @Transactional
-    public void deposit(Long accountId, Currency currency, BigDecimal amount) {
+    public Transaction deposit(Long accountId, Currency currency, BigDecimal amount) {
         try {
             Account account = accountRepository.findByIdAndCurrency(accountId,currency)
                     .orElseThrow(() -> new AccountNotFoundException("Account not found"));
@@ -51,7 +54,8 @@ public class TransactionsService {
 
             accountRepository.save(account);
 
-            createTransaction(amount,TransactionType.DEPOSIT,null,account);
+            return createTransaction(amount,TransactionType.DEPOSIT,null,account);
+
         } catch (ObjectOptimisticLockingFailureException ex) {
             //logger.warn("Optimistic lock failure detected, attempt will be retried");
             throw ex;
@@ -65,7 +69,7 @@ public class TransactionsService {
             backoff = @Backoff(delay = 100, multiplier = 2)
     )
     @Transactional
-    public void withdrawal(Long accountId, Currency currency, BigDecimal amount) {
+    public Transaction withdrawal(Long accountId, Currency currency, BigDecimal amount) {
         try {
             Account account = accountRepository.findByIdAndCurrency(accountId,currency)
                     .orElseThrow(() -> new AccountNotFoundException("Account not found"));
@@ -73,7 +77,7 @@ public class TransactionsService {
 
             accountRepository.save(account);
 
-            createTransaction(amount,TransactionType.WITHDRAWAL,account,null);
+            return createTransaction(amount,TransactionType.WITHDRAWAL,account,null);
         } catch (ObjectOptimisticLockingFailureException ex) {
             //logger.warn("Optimistic lock failure detected, attempt will be retried");
             throw ex;
@@ -87,17 +91,17 @@ public class TransactionsService {
             backoff = @Backoff(delay = 100, multiplier = 2)
     )
     @Transactional
-    public void transfer(Long fromAccountId, Long toAccountId, BigDecimal amount) {
+    public Transaction transfer(Long fromAccountId, Long toAccountId, BigDecimal amount) {
         try {
             // Existing transfer logic
-            performTransfer(fromAccountId, toAccountId, amount);
+            return performTransfer(fromAccountId, toAccountId, amount);
         } catch (ObjectOptimisticLockingFailureException ex) {
             //logger.warn("Optimistic lock failure detected, attempt will be retried");
             throw ex;
         }
     }
 
-    private void performTransfer(Long fromAccountId, Long toAccountId, BigDecimal amount) {
+    private Transaction performTransfer(Long fromAccountId, Long toAccountId, BigDecimal amount) {
         // Initial wallet retrieval without lock
         Account fromAccount = accountRepository.findById(fromAccountId)
                 .orElseThrow(() -> new AccountNotFoundException("Sender account not found"));
@@ -124,7 +128,7 @@ public class TransactionsService {
         lockedRecipient.setBalance(lockedRecipient.getBalance().add(amount));
 
         accountRepository.saveAll(List.of(lockedSender, lockedRecipient));
-        createTransaction(amount,TransactionType.TRANSFER,lockedSender,lockedRecipient);
+        return createTransaction(amount,TransactionType.TRANSFER,lockedSender,lockedRecipient);
     }
 
     @Recover
@@ -150,7 +154,7 @@ public class TransactionsService {
         }
     }
 
-    private void createTransaction(BigDecimal amount,
+    private Transaction createTransaction(BigDecimal amount,
                                    TransactionType type, Account from, Account to) {
         Transaction transaction = new Transaction();
         transaction.setAmount(amount);
@@ -159,10 +163,13 @@ public class TransactionsService {
         transaction.setFromAccount(from);
         transaction.setToAccount(to);
         transaction.setTimestamp(LocalDateTime.now());
-        transactionRepository.save(transaction);
+        transaction.setStatus(Status.COMPLETED);
+        return transactionRepository.save(transaction);
     }
 
-    public Page<Transaction> listTransactions(User user,Integer limit, Integer offset){
+    public Page<Transaction> listTransactions(String username,Integer limit, Integer offset){
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
         return transactionRepository.findByFromAccount_UserOrToAccount_User(user,user, new OffsetBasedPageRequest(limit,offset));
     }
 }
