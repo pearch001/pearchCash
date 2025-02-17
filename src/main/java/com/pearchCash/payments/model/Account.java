@@ -1,5 +1,6 @@
 package com.pearchCash.payments.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pearchCash.payments.enums.Currency;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,8 +24,9 @@ public class Account {
     private BigDecimal balance = BigDecimal.ZERO;
     @CreationTimestamp
     private LocalDateTime timestamp;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
 

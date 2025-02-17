@@ -8,12 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Response {
-    private String status;
+    private String code;
     private String message;
     private GenericData<Object> data;
 
-    public Response(String status, String message) {
-        this.status = status;
+    public Response(String code, String message) {
+        this.code = code;
         this.message = message;
     }
 }

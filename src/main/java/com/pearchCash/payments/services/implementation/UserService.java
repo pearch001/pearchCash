@@ -1,6 +1,7 @@
 package com.pearchCash.payments.services.implementation;
 
 import com.pearchCash.payments.dtos.requests.UserRegistrationDto;
+import com.pearchCash.payments.enums.Roles;
 import com.pearchCash.payments.enums.TransactionType;
 import com.pearchCash.payments.exceptions.*;
 import com.pearchCash.payments.model.Account;
@@ -13,11 +14,15 @@ import com.pearchCash.payments.services.PaymentsService;
 import com.pearchCash.payments.services.UsersService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +44,18 @@ public class UserService implements UsersService {
         user.setUsername(dto.getUsername());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setEmail(dto.getEmail());
+        user.setRole(Roles.ROLE_USER.name());
         return userRepository.save(user);
+    }
+
+
+
+    public User findUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }

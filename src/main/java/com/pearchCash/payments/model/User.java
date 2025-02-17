@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-@Entity
+@Entity(name = "users_test")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -31,8 +31,8 @@ public class User  implements UserDetails {
     private String password;
     private String role;
     @CreationTimestamp
-    private LocalDateTime timestamp;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private LocalDateTime dateCreated;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Account> accounts = new ArrayList<>();
 
 

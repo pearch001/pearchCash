@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import com.pearchCash.payments.controllers.AccountController;
 import com.pearchCash.payments.dtos.response.AccountBalanceResponse;
 import com.pearchCash.payments.enums.Currency;
 import com.pearchCash.payments.exceptions.AccountAlreadyExistsException;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -117,7 +119,7 @@ class AccountServiceTest {
                 .thenReturn(mockPage);
 
         // Execute
-        Page<Account> result = accountService.getAccountBalance(testUsername, limit, offset);
+        Page<Account> result = accountService.getUserAccount(testUsername, limit, offset);
 
         // Verify
         assertSame(mockPage, result);

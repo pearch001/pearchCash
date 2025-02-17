@@ -10,6 +10,7 @@ import com.pearchCash.payments.enums.TransactionType;
 
 
 @Data
+@Entity
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

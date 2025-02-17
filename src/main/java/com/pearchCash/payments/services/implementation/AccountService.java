@@ -2,15 +2,12 @@ package com.pearchCash.payments.services.implementation;
 
 import com.pearchCash.payments.dtos.response.AccountBalanceResponse;
 import com.pearchCash.payments.enums.Currency;
-import com.pearchCash.payments.enums.TransactionType;
 import com.pearchCash.payments.exceptions.*;
 import com.pearchCash.payments.model.Account;
-import com.pearchCash.payments.model.Transaction;
 import com.pearchCash.payments.model.User;
 import com.pearchCash.payments.repositories.AccountRepository;
-import com.pearchCash.payments.repositories.TransactionsRepository;
-import com.pearchCash.payments.repositories.UserRepository;
-import com.pearchCash.payments.services.PaymentsService;
+import com.pearchCash.payments.services.AccountsService;
+import com.pearchCash.payments.services.UsersService;
 import com.pearchCash.payments.utils.OffsetBasedPageRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +15,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class AccountService  {
+public class AccountService implements AccountsService {
     private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
+    private final UsersService userService;
 
 
     @Transactional
@@ -32,7 +30,7 @@ public class AccountService  {
         //Method to create Account
 
         //Get User
-        User user = userRepository.findByUsername(username).get();
+        User user = userService.findByUsername(username).get();
 
         // Check if account already exists for this user/currency
         if (accountRepository.existsByUserAndCurrency(user, currency)) {
@@ -56,7 +54,7 @@ public class AccountService  {
         //Method to get Account Balance
 
         //Get User
-        User user = userRepository.findByUsername(username).get();
+        User user = userService.findByUsername(username).get();
 
         Optional<Account> accountOptional = accountRepository.findByIdAndUser(id,user);
         // Check if account already exists for this user/currency
@@ -73,13 +71,31 @@ public class AccountService  {
         //Method to get all user Accounts
 
         //Get User
-        User user = userRepository.findByUsername(username).get();
+        User user = userService.findByUsername(username).get();
 
         return accountRepository.findAllByUser(user,new OffsetBasedPageRequest(limit, offset));
     }
 
 
+    public Account findByIdAndCurrency(Long accountId, Currency currency) {
+        return accountRepository.findByIdAndCurrency(accountId,currency)
+                .orElseThrow(() -> new AccountNotFoundException("Account not found"));
+    }
+
+    public void save(Account account) {
+        accountRepository.save(account);
+    }
+
+    public Optional<Account> findById(Long accountId) {
+        return  accountRepository.findById(accountId);
+    }
+
+    public void saveAll(List<Account> accounts) {
+        accountRepository.saveAll(accounts);
+    }
 
 
-
+    public Optional<Account> findByIdWithLock(Long id) {
+        return accountRepository.findByIdWithLock(id);
+    }
 }
